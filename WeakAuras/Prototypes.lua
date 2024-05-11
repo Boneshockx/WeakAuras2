@@ -7277,7 +7277,7 @@ Private.event_prototypes = {
         type = "description",
         display = "",
         text = function()
-          return L["Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."]
+          return L["Note: This trigger internally stores the shapeshift position, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."]
         end,
         hidden = not (C_Seasons and C_Seasons.GetActiveSeason and C_Seasons.GetActiveSeason() == 2),
       },
@@ -11074,8 +11074,8 @@ Private.event_prototypes = {
         init = "WeakAuras.InstanceDifficulty()",
         conditionType = "select",
         store = true,
-        enable = WeakAuras.IsRetail(),
-        hidden = not WeakAuras.IsRetail(),
+        enable = not WeakAuras.IsClassicEra(),
+        hidden = WeakAuras.IsClassicEra(),
       },
       {
         name = "instanceType",
@@ -11085,8 +11085,8 @@ Private.event_prototypes = {
         init = "WeakAuras.InstanceTypeRaw()",
         conditionType = "select",
         store = true,
-        enable = WeakAuras.IsRetail(),
-        hidden = not WeakAuras.IsRetail(),
+        enable = not WeakAuras.IsClassicEra(),
+        hidden = WeakAuras.IsClassicEra(),
       },
     },
     automaticrequired = true,
