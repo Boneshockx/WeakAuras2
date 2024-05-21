@@ -1726,6 +1726,69 @@ function OptionsPrivate.OpenTriggerTemplate(data, targetId)
   end
 end
 
+local BaseTextReplacements = {
+  {name = "p", desc = L["Progress - The remaining time of a timer, or a non-timer value"]},
+  {name = "t", desc = L["Total - The maximum duration of a timer, or a maximum non-timer value"]},
+  {name = "n", desc = L["Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"]},
+  {name = "i", desc = L["Icon - The icon associated with the display"]},
+  {name = "s", desc = L["Stacks - The number of stacks of an aura (usually)"]},
+  {name = "c", desc = L["Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."]},
+  {name = "%", desc = L["% - To show a percent sign"]},
+}
+
+function OptionsPrivate.UpdateTextReplacements(frame, data)
+  local _, props = OptionsPrivate.Private.GetAdditionalProperties(data)
+  local dropdownItems = {}
+  for i,v in ipairs(props) do
+    if next(props[i]) then
+      dropdownItems[i] = "Trigger " .. i
+    end
+  end
+  dropdownItems[0] = "Global"
+  frame.dropdown:SetList(dropdownItems)
+  frame.dropdown:SetValue(0)
+
+  local function FillScrollList(key)
+    key = key or 0
+    frame.scrollList:ReleaseChildren()
+
+    local sortedProps = {}
+    if key > 0 then
+      frame.label:SetText(L["Dynamic text label"])
+      for name, desc in pairs(props[key]) do
+          table.insert(sortedProps, {name = name, desc = desc})
+      end
+      table.sort(sortedProps, function(a, b) return a.name < b.name end)
+    else
+      frame.label:SetText(L["Dynamic text label global"])
+      sortedProps = BaseTextReplacements
+    end
+
+    -- Create a container with label for each property and add it to the scrollList
+    for _, prop in ipairs(sortedProps) do
+      local container = AceGUI:Create("SimpleGroup")
+      container:SetLayout("Flow")
+      container:SetFullWidth(true)
+      container:SetAutoAdjustHeight(true)
+
+      local label = AceGUI:Create("Label")
+      local text = key > 0 and string.format("|cFFFFCC00%%%s.%s|r - %s", key, prop.name, prop.desc) or string.format("|cFFFFCC00%%%s|r - %s", prop.name, prop.desc)
+      label:SetText(text)
+      label:SetFontObject(GameFontNormalSmall2)
+      label:SetFullWidth(true)
+      container:AddChild(label)
+
+      frame.scrollList:AddChild(container)
+    end
+  end
+  FillScrollList()
+
+  frame.dropdown:SetCallback("OnValueChanged", function(widget, event, key)
+    FillScrollList(key)
+  end
+  )
+end
+
 function OptionsPrivate.ResetMoverSizer()
   if(frame and frame.mover and frame.moversizer and frame.mover.moving.region and frame.mover.moving.data) then
     frame.moversizer:SetToRegion(frame.mover.moving.region, frame.mover.moving.data);

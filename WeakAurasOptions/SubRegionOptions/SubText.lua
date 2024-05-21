@@ -48,10 +48,7 @@ local function createOptions(parentData, data, index, subIndex)
     },
     text_text = {
       type = "input",
-      width = WeakAuras.normalWidth,
-      desc = function()
-        return L["Dynamic text tooltip"] .. OptionsPrivate.Private.GetAdditionalProperties(parentData)
-      end,
+      width = WeakAuras.normalWidth - 0.15,
       name = L["Display Text"],
       order = 11,
       set = function(info, v)
@@ -59,6 +56,20 @@ local function createOptions(parentData, data, index, subIndex)
         WeakAuras.Add(parentData)
         WeakAuras.ClearAndUpdateOptions(parentData.id)
       end
+    },
+    text_replacements_button = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = 11.1,
+      func = function()
+        OptionsPrivate.ToggleTextReplacements(parentData)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
     },
     text_font = {
       type = "select",

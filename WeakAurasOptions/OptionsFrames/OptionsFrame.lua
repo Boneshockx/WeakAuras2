@@ -152,7 +152,6 @@ function OptionsPrivate.CreateFrame()
 
     OptionsPrivate.Private.ClearFakeStates()
 
-
     for id, data in pairs(OptionsPrivate.Private.regions) do
       if data.region then
         data.region:Collapse()
@@ -252,6 +251,7 @@ function OptionsPrivate.CreateFrame()
       self.tipFrame:Hide()
       self:HideTip()
       self.bottomRightResizer:Hide()
+      self.textReplacementsFrame:Hide()
     else
       WeakAurasOptionsTitleText:Show()
       self.bottomRightResizer:Show()
@@ -263,6 +263,7 @@ function OptionsPrivate.CreateFrame()
       else
         self.buttonsContainer.frame:Hide()
         self.container.frame:Hide()
+        self.textReplacementsFrame:Hide()
         self:HideTip()
       end
 
@@ -854,6 +855,67 @@ function OptionsPrivate.CreateFrame()
   unloadedButton.childButtons = {}
   frame.unloadedButton = unloadedButton
 
+  -- Sidebar used for Dynamic Text Replacements
+  local sidegroup = AceGUI:Create("WeakAurasInlineGroup")
+  sidegroup.frame:SetParent(frame)
+  sidegroup.frame:SetPoint("TOPLEFT", frame, "TOPLEFT", 17, -63);
+  sidegroup.frame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -17, 46);
+  sidegroup.frame:Show()
+  sidegroup:SetLayout("flow")
+
+  local textReplacementsFrame = CreateFrame("Frame", "WeakAurasTextReplacements", sidegroup.frame, "PortraitFrameTemplate")
+  ButtonFrameTemplate_HidePortrait(textReplacementsFrame)
+  textReplacementsFrame:SetPoint("TOPLEFT", sidegroup.frame, "TOPRIGHT", 20, 0)
+  textReplacementsFrame:SetPoint("BOTTOMLEFT", sidegroup.frame, "BOTTOMRIGHT", 20, 0)
+  textReplacementsFrame:SetWidth(250)
+  frame.textReplacementsFrame = textReplacementsFrame
+
+  local textReplacementsDropdown = AceGUI:Create("Dropdown")
+  textReplacementsDropdown:SetLabel("Select Trigger")
+  textReplacementsDropdown:SetPoint("TOP", textReplacementsFrame, "TOP", 0, -35)
+  textReplacementsDropdown.frame:SetParent(textReplacementsFrame)
+
+  local textReplacementsLabel = AceGUI:Create("Label")
+  textReplacementsLabel:SetText(L["Dynamic text label global"])
+  textReplacementsLabel:SetFontObject(GameFontNormal)
+  textReplacementsLabel:SetPoint("TOP", textReplacementsDropdown.frame, "BOTTOM", 0, -15)
+  textReplacementsLabel:SetFontObject(GameFontNormalSmall2)
+  textReplacementsLabel.frame:SetParent(textReplacementsFrame)
+  textReplacementsLabel.frame:Show()
+
+  local textReplacementsScrollContainer = AceGUI:Create("SimpleGroup")
+  textReplacementsScrollContainer:SetFullWidth(true)
+  textReplacementsScrollContainer:SetFullHeight(true)
+  textReplacementsScrollContainer:SetLayout("Fill")
+  textReplacementsScrollContainer:SetPoint("TOPLEFT", textReplacementsLabel.frame, "BOTTOMLEFT", 0, -15)
+  textReplacementsScrollContainer:SetPoint("BOTTOMRIGHT", textReplacementsFrame, "BOTTOMRIGHT", -20, 20)
+  textReplacementsScrollContainer.frame:SetParent(textReplacementsFrame)
+
+  local textReplacementsScroll = AceGUI:Create("ScrollFrame")
+  textReplacementsScroll:SetLayout("List")
+  textReplacementsScrollContainer:AddChild(textReplacementsScroll)
+  textReplacementsScroll:FixScroll(true)
+  textReplacementsScroll.scrollframe:SetScript(
+    "OnScrollRangeChanged",
+    function(frame)
+      frame.obj:DoLayout()
+    end
+  )
+
+  textReplacementsFrame.scrollContainer = textReplacementsScrollContainer
+  textReplacementsFrame.scrollList = textReplacementsScroll
+  textReplacementsFrame.dropdown = textReplacementsDropdown
+  textReplacementsFrame.label = textReplacementsLabel
+  textReplacementsFrame:Hide()
+
+  function OptionsPrivate.ToggleTextReplacements(data)
+    if not textReplacementsFrame:IsShown() then
+      textReplacementsFrame:Show()
+      OptionsPrivate.UpdateTextReplacements(textReplacementsFrame, data)
+    else
+      textReplacementsFrame:Hide()
+    end
+  end
 
   frame.ClearOptions = function(self, id)
     aceOptions[id] = nil
@@ -915,6 +977,10 @@ function OptionsPrivate.CreateFrame()
     local optionTable = self:EnsureOptions(data, self.selectedTab)
     if optionTable then
       AceConfigRegistry:RegisterOptionsTable("WeakAuras", optionTable, true)
+    end
+
+    if frame.textReplacementsFrame then
+      frame.textReplacementsFrame:Hide()
     end
   end
 
@@ -1103,6 +1169,7 @@ function OptionsPrivate.CreateFrame()
         targetIsDynamicGroup = parentData and parentData.regionType == "dynamicgroup"
       end
     end
+    self.textReplacementsFrame:Hide()
     self.moversizer:Hide()
     self.pickedOption = "New"
 
