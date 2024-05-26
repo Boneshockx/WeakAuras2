@@ -55,6 +55,10 @@ local function createOptions(parentData, data, index, subIndex)
         data.text_text = OptionsPrivate.Private.ReplaceLocalizedRaidMarkers(v)
         WeakAuras.Add(parentData)
         WeakAuras.ClearAndUpdateOptions(parentData.id)
+      end,
+      control = "WeakAurasInput",
+      OnEditFocusGained = function()
+        OptionsPrivate.ToggleTextReplacements(parentData, true)
       end
     },
     text_replacements_button = {

@@ -908,8 +908,8 @@ function OptionsPrivate.CreateFrame()
   textReplacementsFrame.label = textReplacementsLabel
   textReplacementsFrame:Hide()
 
-  function OptionsPrivate.ToggleTextReplacements(data)
-    if not textReplacementsFrame:IsShown() then
+  function OptionsPrivate.ToggleTextReplacements(data, show)
+    if show or not textReplacementsFrame:IsShown() then
       textReplacementsFrame:Show()
       OptionsPrivate.UpdateTextReplacements(textReplacementsFrame, data)
     else
