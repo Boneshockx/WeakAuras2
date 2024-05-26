@@ -61,8 +61,8 @@ local function createOptions(parentData, data, index, subIndex)
       control = "WeakAurasInput",
       callbacks = {
         OnEditFocusGained = function(self)
-          OptionsPrivate.CurrentInput = self
-          OptionsPrivate.ToggleTextReplacements(parentData, true)
+          local widget = dynamicTextInputs[subIndex]
+          OptionsPrivate.ToggleTextReplacements(parentData, true, widget)
         end,
         OnShow = function(self)
           dynamicTextInputs[subIndex] = self
@@ -77,8 +77,7 @@ local function createOptions(parentData, data, index, subIndex)
       order = 11.1,
       func = function()
         local widget = dynamicTextInputs[subIndex]
-        OptionsPrivate.CurrentInput = widget
-        OptionsPrivate.ToggleTextReplacements(parentData)
+        OptionsPrivate.ToggleTextReplacements(parentData, nil, widget)
       end,
       imageWidth = 24,
       imageHeight = 24,

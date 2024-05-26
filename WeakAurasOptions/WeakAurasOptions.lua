@@ -1726,7 +1726,8 @@ function OptionsPrivate.OpenTriggerTemplate(data, targetId)
   end
 end
 
-OptionsPrivate.CurrentInput = false;
+OptionsPrivate.currentDynamicTextInput = false;
+OptionsPrivate.skipDynamicTextUpdate = false;
 
 local BaseTextReplacements = {
   {name = "p", desc = L["Progress - The remaining time of a timer, or a non-timer value"]},
@@ -1768,16 +1769,50 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
 
     -- Create a container with label for each property and add it to the scrollList
     for _, prop in ipairs(sortedProps) do
-      local container = AceGUI:Create("WeakAurasInteractiveLabel")
+      -- local container = AceGUI:Create("WeakAurasInteractiveLabel")
+      -- local propCode = key > 0 and string.format("%%%s.%s", key, prop.name) or string.format("%%%s", prop.name)
+      -- local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
+      -- container:SetText(text)
+      -- container:SetScript("OnClick", function()
+      --   OptionsPrivate.CurrentInput.editbox:Insert(propCode)
+      --   OptionsPrivate.CurrentInput.editbox:SetFocus()
+      -- end)
+
+      local button = AceGUI:Create("WeakAurasSnippetButton")
       local propCode = key > 0 and string.format("%%%s.%s", key, prop.name) or string.format("%%%s", prop.name)
       local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
-      container:SetText(text)
-      container:SetScript("OnClick", function()
-        OptionsPrivate.CurrentInput.editbox:Insert(propCode)
-        OptionsPrivate.CurrentInput.editbox:SetFocus()
+      button:SetTitle(text)
+      button:SetWidth(frame.scrollContainer.frame:GetWidth())
+      button.title:SetFontObject(GameFontNormalSmall2)
+      button.title:ClearAllPoints()
+      button.title:SetPoint("LEFT", button.frame, "LEFT", 5, 0)
+      button.title:SetPoint("RIGHT", button.frame, "RIGHT", -5, 0)
+      button.title:SetWidth(button.frame:GetWidth() - 10)
+
+      button.frame:SetScript("OnEnter", function(frame)
+        local tooltip = GameTooltip
+        tooltip:SetWidth(300)
+        tooltip:SetOwner(frame, "ANCHOR_RIGHT")
+        tooltip:ClearLines()
+        tooltip:AddLine(propCode)
+        tooltip:AddLine(prop.desc, 1, 1, 1, true)
+        tooltip:Show()
+        frame.obj:Fire("OnEnter")
       end)
 
-      frame.scrollList:AddChild(container)
+      button.frame:SetScript("OnClick", function()
+        OptionsPrivate.currentDynamicTextInput.editbox:Insert(propCode)
+        OptionsPrivate.skipDynamicTextUpdate = true
+        OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
+        OptionsPrivate.skipDynamicTextUpdate = false
+      end)
+
+      local numLines = button.title:GetNumLines()
+      local lineHeight = select(2, button.title:GetFont())
+      button.title:SetHeight(numLines * lineHeight)
+      button:SetHeight((numLines * lineHeight) + 10)
+
+      frame.scrollList:AddChild(button)
     end
   end
   FillScrollList()

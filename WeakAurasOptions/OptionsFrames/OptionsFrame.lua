@@ -908,10 +908,13 @@ function OptionsPrivate.CreateFrame()
   textReplacementsFrame.label = textReplacementsLabel
   textReplacementsFrame:Hide()
 
-  function OptionsPrivate.ToggleTextReplacements(data, show)
+  function OptionsPrivate.ToggleTextReplacements(data, show, widget)
     if show or not textReplacementsFrame:IsShown() then
       textReplacementsFrame:Show()
-      OptionsPrivate.UpdateTextReplacements(textReplacementsFrame, data)
+      if OptionsPrivate.currentDynamicTextInput ~= widget then
+        OptionsPrivate.UpdateTextReplacements(textReplacementsFrame, data)
+      end
+      OptionsPrivate.currentDynamicTextInput = widget
     else
       textReplacementsFrame:Hide()
     end
