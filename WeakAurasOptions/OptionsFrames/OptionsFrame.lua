@@ -978,10 +978,6 @@ function OptionsPrivate.CreateFrame()
     if optionTable then
       AceConfigRegistry:RegisterOptionsTable("WeakAuras", optionTable, true)
     end
-
-    if frame.textReplacementsFrame then
-      frame.textReplacementsFrame:Hide()
-    end
   end
 
   frame.EnsureOptions = function(self, data, tab)
@@ -1069,6 +1065,10 @@ function OptionsPrivate.CreateFrame()
 
     if data.controlledChildren and #data.controlledChildren == 0 then
       WeakAurasOptions:NewAura()
+    end
+
+    if frame.textReplacementsFrame then
+      frame.textReplacementsFrame:Hide()
     end
   end
 

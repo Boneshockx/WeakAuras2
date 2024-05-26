@@ -57,23 +57,13 @@ local function createOptions(parentData, data, index, subIndex)
         WeakAuras.ClearAndUpdateOptions(parentData.id)
       end,
       control = "WeakAurasInput",
-      OnEditFocusGained = function()
+      OnEditFocusGained = function(self)
+        OptionsPrivate.CurrentInput = self
         OptionsPrivate.ToggleTextReplacements(parentData, true)
-      end
-    },
-    text_replacements_button = {
-      type = "execute",
-      width = 0.15,
-      name = L["Dynamic Text Replacements"],
-      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
-      order = 11.1,
-      func = function()
-        OptionsPrivate.ToggleTextReplacements(parentData)
       end,
-      imageWidth = 24,
-      imageHeight = 24,
-      control = "WeakAurasIcon",
-      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
+      SetWidget = function(self)
+        data.text_text_widget = self
+      end,
     },
     text_font = {
       type = "select",
@@ -290,6 +280,23 @@ local function createOptions(parentData, data, index, subIndex)
         expanderName = "subtext" .. index .. "#" .. subIndex
       }
     }
+  }
+
+  options.text_replacements_button = {
+    type = "execute",
+    width = 0.15,
+    name = L["Dynamic Text Replacements"],
+    desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+    order = 11.1,
+    func = function()
+      local widget = data.text_text_widget
+      OptionsPrivate.CurrentInput = widget
+      OptionsPrivate.ToggleTextReplacements(parentData)
+    end,
+    imageWidth = 24,
+    imageHeight = 24,
+    control = "WeakAurasIcon",
+    image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
   }
 
   -- Note: Anchor Options need to be generalized once there are multiple sub regions

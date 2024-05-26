@@ -1726,6 +1726,8 @@ function OptionsPrivate.OpenTriggerTemplate(data, targetId)
   end
 end
 
+OptionsPrivate.CurrentInput = false;
+
 local BaseTextReplacements = {
   {name = "p", desc = L["Progress - The remaining time of a timer, or a non-timer value"]},
   {name = "t", desc = L["Total - The maximum duration of a timer, or a maximum non-timer value"]},
@@ -1766,20 +1768,14 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
 
     -- Create a container with label for each property and add it to the scrollList
     for _, prop in ipairs(sortedProps) do
-      local container = AceGUI:Create("SimpleGroup")
-      container:SetLayout("Flow")
-      container:SetFullWidth(true)
-      container:SetAutoAdjustHeight(true)
-
-      local label = AceGUI:Create("InteractiveLabel")
-      local text = key > 0 and string.format("|cFFFFCC00%%%s.%s|r - %s", key, prop.name, prop.desc) or string.format("|cFFFFCC00%%%s|r - %s", prop.name, prop.desc)
-      label:SetText(text)
-      label:SetFontObject(GameFontNormalSmall2)
-      label:SetFullWidth(true)
-      label:SetCallback("OnClick", function()
-        print("Label Clicked")
+      local container = AceGUI:Create("WeakAurasInteractiveLabel")
+      local propCode = key > 0 and string.format("%%%s.%s", key, prop.name) or string.format("%%%s", prop.name)
+      local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
+      container:SetText(text)
+      container:SetScript("OnClick", function()
+        OptionsPrivate.CurrentInput.editbox:Insert(propCode)
+        OptionsPrivate.CurrentInput.editbox:SetFocus()
       end)
-      container:AddChild(label)
 
       frame.scrollList:AddChild(container)
     end
