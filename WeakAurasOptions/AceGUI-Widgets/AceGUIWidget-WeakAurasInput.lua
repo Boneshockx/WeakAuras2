@@ -7,16 +7,16 @@ if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 local OnEditFocusGained = function(frame)
   local self = frame.obj
   local option = self.userdata.option
-  if option and option.OnEditFocusGained then
-    option.OnEditFocusGained(self)
+  if option and option.callbacks and option.callbacks.OnEditFocusGained then
+    option.callbacks.OnEditFocusGained(self)
   end
 end
 
 local OnShow = function(frame)
   local self = frame.obj
   local option = self.userdata.option
-  if option and option.SetWidget then
-    option.SetWidget(self)
+  if option and option.callbacks and option.callbacks.OnShow then
+    option.callbacks.OnShow(self)
   end
 end
 
