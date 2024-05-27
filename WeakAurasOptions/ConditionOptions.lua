@@ -243,6 +243,8 @@ local function wrapWithPlaySound(func, kit)
   end
 end
 
+local dynamicTextInputs = {}
+
 local function addControlsForChange(args, order, data, conditionVariable, totalAuraCount, conditions, i, j, allProperties, usedProperties)
   local thenText = (j == 1) and L["Then "] or L["And "];
   local display = isSubset(data, conditions[i].changes[j], totalAuraCount) and allProperties.displayWithCopy or allProperties.display;
@@ -1001,12 +1003,38 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
 
     args["condition" .. i .. "value" .. j .. "message"] = {
       type = "input",
-      width = WeakAuras.doubleWidth,
+      width = WeakAuras.doubleWidth - 0.15,
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "message", L["Message"], L["Message"]),
-      desc = descMessage,
       order = order,
       get = message_getter,
-      set = setValueComplex("message")
+      set = setValueComplex("message"),
+      control = "WeakAurasInput",
+      callbacks = {
+        OnEditFocusGained = function(self)
+          local widget = dynamicTextInputs[i]
+          OptionsPrivate.ToggleTextReplacements(data, true, widget)
+        end,
+        OnShow = function(self)
+          dynamicTextInputs[i] = self
+        end,
+      }
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "message_text_replacements_button"] = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = order,
+      func = function()
+        local widget = dynamicTextInputs[i]
+        OptionsPrivate.ToggleTextReplacements(data, nil, widget)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
     }
     order = order + 1;
 
