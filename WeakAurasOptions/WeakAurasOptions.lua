@@ -1808,7 +1808,7 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
       end)
 
       -- Insert dynamic text property on click
-      button.frame:SetScript("OnClick", function()
+      button:SetCallback("OnClick", function()
         local insertProp = prop.name == "%" and "%%" or string.format("%%{%s}", prop.name)
         if prop.triggerNum > 0 then
           insertProp = string.format("%%{%d.%s}", propIndex, prop.name)
