@@ -1798,7 +1798,8 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
     end)
 
     button.frame:SetScript("OnClick", function()
-      OptionsPrivate.currentDynamicTextInput.editbox:Insert(string.format("%%{%s}", propCode))
+      local insertProp = prop.name == "%" and "%%" or string.format("%%{%s}", propCode)
+      OptionsPrivate.currentDynamicTextInput.editbox:Insert(insertProp)
       OptionsPrivate.skipDynamicTextUpdate = true
       OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
       OptionsPrivate.skipDynamicTextUpdate = false

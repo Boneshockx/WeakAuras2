@@ -873,6 +873,9 @@ function OptionsPrivate.CreateFrame()
   textReplacementsFrame.TitleText:SetJustifyH("CENTER")
   textReplacementsFrame.TitleText:SetPoint("LEFT", textReplacementsFrame, "TOPLEFT")
   textReplacementsFrame.TitleText:SetPoint("RIGHT", textReplacementsFrame, "TOPRIGHT", -10, 0)
+  textReplacementsFrame:SetScript("OnHide", function()
+    OptionsPrivate.currentDynamicTextInput = nil
+  end)
 
   local textReplacementsLabel = AceGUI:Create("Label")
   textReplacementsLabel:SetText(L["Insert text replacement codes to make text dynamic."])
@@ -887,7 +890,7 @@ function OptionsPrivate.CreateFrame()
   textReplacementsScrollContainer:SetFullHeight(true)
   textReplacementsScrollContainer:SetLayout("Fill")
   textReplacementsScrollContainer:SetPoint("TOPLEFT", textReplacementsLabel.frame, "BOTTOMLEFT", 0, -15)
-  textReplacementsScrollContainer:SetPoint("BOTTOMRIGHT", textReplacementsFrame, "BOTTOMRIGHT", -20, 20)
+  textReplacementsScrollContainer:SetPoint("BOTTOMRIGHT", textReplacementsFrame, "BOTTOMRIGHT", -8, 20)
   textReplacementsScrollContainer.frame:SetParent(textReplacementsFrame)
 
   local textReplacementsScroll = AceGUI:Create("ScrollFrame")
