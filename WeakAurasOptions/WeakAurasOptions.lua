@@ -1744,7 +1744,7 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
   local _, props = OptionsPrivate.Private.GetAdditionalProperties(data)
   local sortedProps = {}
   for triggerNum, triggerProps in pairs(props) do
-    table.insert(sortedProps, {type = "header", triggerNum = triggerNum, name = string.format("%s %d", L["Trigger"], triggerNum)})
+    table.insert(sortedProps, {type = "header", triggerNum = triggerNum, name = OptionsPrivate.GetTriggerTitle(data, triggerNum)})
     for name, desc in pairs(triggerProps) do
       table.insert(sortedProps, {triggerNum = triggerNum, name = name, desc = desc})
     end
@@ -1769,11 +1769,12 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
   tAppendAll(finalProps, sortedProps)
 
   -- Create a modified WeakAurasSnippetButton for each property and add it to ScrollList
-  for _, prop in ipairs(finalProps) do
+  for i, prop in ipairs(finalProps) do
     if prop.type and prop.type == "header" then
       local heading = AceGUI:Create("Heading")
       heading:SetText(prop.name)
       heading:SetRelativeWidth(1)
+      heading.label:SetFontObject(GameFontNormalSmall2)
       frame.scrollList:AddChild(heading)
     else
       local button = AceGUI:Create("WeakAurasSnippetButton")
@@ -1808,7 +1809,10 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
 
       -- Insert dynamic text property on click
       button.frame:SetScript("OnClick", function()
-        local insertProp = prop.name == "%" and "%%" or string.format("%%{%d.%s}", propIndex, prop.name)
+        local insertProp = prop.name == "%" and "%%" or string.format("%%{%s}", prop.name)
+        if prop.triggerNum > 0 then
+          insertProp = string.format("%%{%d.%s}", propIndex, prop.name)
+        end
         OptionsPrivate.currentDynamicTextInput.editbox:Insert(insertProp)
         OptionsPrivate.skipDynamicTextUpdate = true
         OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
