@@ -874,14 +874,23 @@ function OptionsPrivate.CreateFrame()
   dynamicTextCodesFrame:SetPoint("TOPLEFT", sidegroup.frame, "TOPRIGHT", 20, 0)
   dynamicTextCodesFrame:SetPoint("BOTTOMLEFT", sidegroup.frame, "BOTTOMRIGHT", 20, 0)
   dynamicTextCodesFrame:SetWidth(250)
-  frame.dynamicTextCodesFrame = dynamicTextCodesFrame
-  dynamicTextCodesFrame.TitleText:SetText("Dynamic Text Replacements")
-  dynamicTextCodesFrame.TitleText:SetJustifyH("CENTER")
-  dynamicTextCodesFrame.TitleText:SetPoint("LEFT", dynamicTextCodesFrame, "TOPLEFT")
-  dynamicTextCodesFrame.TitleText:SetPoint("RIGHT", dynamicTextCodesFrame, "TOPRIGHT", -10, 0)
   dynamicTextCodesFrame:SetScript("OnHide", function()
     OptionsPrivate.currentDynamicTextInput = nil
   end)
+  frame.dynamicTextCodesFrame = dynamicTextCodesFrame
+
+  local dynamicTextCodesFrameTitle
+  if dynamicTextCodesFrame.TitleContainer and dynamicTextCodesFrame.TitleContainer.TitleText then
+    dynamicTextCodesFrameTitle = dynamicTextCodesFrame.TitleContainer.TitleText
+  elseif dynamicTextCodesFrame.TitleText then
+    dynamicTextCodesFrameTitle = dynamicTextCodesFrame.TitleText
+  end
+  if dynamicTextCodesFrameTitle then
+    dynamicTextCodesFrame.TitleContainer.TitleText:SetText("Dynamic Text Replacements")
+    dynamicTextCodesFrame.TitleContainer.TitleText:SetJustifyH("CENTER")
+    dynamicTextCodesFrame.TitleContainer.TitleText:SetPoint("LEFT", dynamicTextCodesFrame, "TOPLEFT")
+    dynamicTextCodesFrame.TitleContainer.TitleText:SetPoint("RIGHT", dynamicTextCodesFrame, "TOPRIGHT", -10, 0)
+  end
 
   local dynamicTextCodesLabel = AceGUI:Create("Label")
   dynamicTextCodesLabel:SetText(L["Insert text replacement codes to make text dynamic."])
