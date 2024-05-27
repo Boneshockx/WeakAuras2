@@ -21,11 +21,11 @@ local OnShow = function(frame)
 end
 
 local function Constructor()
-	local widget = AceGUI:Create("EditBox")
-	widget.type = Type
-	widget.editbox:SetScript("OnEditFocusGained", OnEditFocusGained)
+  local widget = AceGUI:Create("EditBox")
+  widget.type = Type
+  widget.editbox:SetScript("OnEditFocusGained", OnEditFocusGained)
   widget.editbox:SetScript("OnShow", OnShow)
-	return widget
+  return widget
 end
 
 AceGUI:RegisterWidgetType(Type, Constructor, Version)

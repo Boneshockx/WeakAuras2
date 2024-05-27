@@ -1744,10 +1744,12 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
   local _, props = OptionsPrivate.Private.GetAdditionalProperties(data)
   local sortedProps = {}
   for triggerNum, triggerProps in pairs(props) do
-    table.insert(sortedProps, {type = "header", triggerNum = triggerNum, name = OptionsPrivate.GetTriggerTitle(data, triggerNum)})
-    for name, desc in pairs(triggerProps) do
-      table.insert(sortedProps, {triggerNum = triggerNum, name = name, desc = desc})
-    end
+    if next(props[triggerNum]) then
+      table.insert(sortedProps, {type = "header", triggerNum = triggerNum, name = OptionsPrivate.GetTriggerTitle(data, triggerNum)})
+      for name, desc in pairs(triggerProps) do
+        table.insert(sortedProps, {triggerNum = triggerNum, name = name, desc = desc})
+      end
+  end
   end
   table.sort(sortedProps, function(a, b)
     if a.triggerNum == b.triggerNum then

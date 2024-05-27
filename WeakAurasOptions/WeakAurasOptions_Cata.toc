@@ -101,5 +101,4 @@ AceGUI-Widgets\AceGUIWidget-WeakAurasScrollArea.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInput.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInputFocus.lua
 AceGUI-Widgets\AceGuiWidget-WeakAurasMediaSound.lua
-AceGUI-Widgets\AceGUIWidget-WeakAurasInteractiveLabel.lua
 AceGUI-Widgets\WeakAurasStatusbarAtlasWidget.lua
