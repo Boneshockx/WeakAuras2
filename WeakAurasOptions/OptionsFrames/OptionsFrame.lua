@@ -103,6 +103,7 @@ function OptionsPrivate.CreateFrame()
   local color = CreateColorFromHexString("ff1f1e21") -- PANEL_BACKGROUND_COLOR
   local r, g, b = color:GetRGB()
   frame.Bg:SetColorTexture(r, g, b, 0.8)
+  frame.Bg.colorTexture = {r, g, b, 0.8}
 
   function OptionsPrivate.SetTitle(title)
     local text = "WeakAuras " .. WeakAuras.versionString
@@ -868,6 +869,7 @@ function OptionsPrivate.CreateFrame()
   sidegroup:SetLayout("flow")
 
   local dynamicTextCodesFrame = CreateFrame("Frame", "WeakAurasTextReplacements", sidegroup.frame, "PortraitFrameTemplate")
+  dynamicTextCodesFrame.Bg:SetColorTexture(unpack(frame.Bg.colorTexture))
   ButtonFrameTemplate_HidePortrait(dynamicTextCodesFrame)
   dynamicTextCodesFrame:SetPoint("TOPLEFT", sidegroup.frame, "TOPRIGHT", 20, 0)
   dynamicTextCodesFrame:SetPoint("BOTTOMLEFT", sidegroup.frame, "BOTTOMRIGHT", 20, 0)
@@ -881,36 +883,39 @@ function OptionsPrivate.CreateFrame()
     OptionsPrivate.currentDynamicTextInput = nil
   end)
 
-  local textReplacementsLabel = AceGUI:Create("Label")
-  textReplacementsLabel:SetText(L["Insert text replacement codes to make text dynamic."])
-  textReplacementsLabel:SetFontObject(GameFontNormal)
-  textReplacementsLabel:SetPoint("TOP", dynamicTextCodesFrame, "TOP", 0, -35)
-  textReplacementsLabel:SetFontObject(GameFontNormalSmall2)
-  textReplacementsLabel.frame:SetParent(dynamicTextCodesFrame)
-  textReplacementsLabel.frame:Show()
+  local dynamicTextCodesLabel = AceGUI:Create("Label")
+  dynamicTextCodesLabel:SetText(L["Insert text replacement codes to make text dynamic."])
+  dynamicTextCodesLabel:SetFontObject(GameFontNormal)
+  dynamicTextCodesLabel:SetPoint("TOP", dynamicTextCodesFrame, "TOP", 0, -35)
+  dynamicTextCodesLabel:SetFontObject(GameFontNormalSmall2)
+  dynamicTextCodesLabel.frame:SetParent(dynamicTextCodesFrame)
+  dynamicTextCodesLabel.frame:Show()
 
-  local textReplacementsScrollContainer = AceGUI:Create("SimpleGroup")
-  textReplacementsScrollContainer:SetFullWidth(true)
-  textReplacementsScrollContainer:SetFullHeight(true)
-  textReplacementsScrollContainer:SetLayout("Fill")
-  textReplacementsScrollContainer:SetPoint("TOPLEFT", textReplacementsLabel.frame, "BOTTOMLEFT", 0, -15)
-  textReplacementsScrollContainer:SetPoint("BOTTOMRIGHT", dynamicTextCodesFrame, "BOTTOMRIGHT", -8, 20)
-  textReplacementsScrollContainer.frame:SetParent(dynamicTextCodesFrame)
+  local dynamicTextCodesScrollContainer = AceGUI:Create("SimpleGroup")
+  dynamicTextCodesScrollContainer:SetFullWidth(true)
+  dynamicTextCodesScrollContainer:SetFullHeight(true)
+  dynamicTextCodesScrollContainer:SetLayout("Fill")
+  dynamicTextCodesScrollContainer:SetPoint("TOPLEFT", dynamicTextCodesLabel.frame, "BOTTOMLEFT", 0, -15)
+  dynamicTextCodesScrollContainer:SetPoint("BOTTOMRIGHT", dynamicTextCodesFrame, "BOTTOMRIGHT", -25, 20)
+  dynamicTextCodesScrollContainer.frame:SetParent(dynamicTextCodesFrame)
 
-  local textReplacementsScroll = AceGUI:Create("ScrollFrame")
-  textReplacementsScroll:SetLayout("List")
-  textReplacementsScrollContainer:AddChild(textReplacementsScroll)
-  textReplacementsScroll:FixScroll(true)
-  textReplacementsScroll.scrollframe:SetScript(
+  local dynamicTextCodesScrollList = AceGUI:Create("ScrollFrame")
+  dynamicTextCodesScrollList:SetLayout("List")
+  dynamicTextCodesScrollContainer:AddChild(dynamicTextCodesScrollList)
+  dynamicTextCodesScrollList:FixScroll(true)
+  dynamicTextCodesScrollList.scrollframe:SetScript(
     "OnScrollRangeChanged",
     function(frame)
+      if frame.obj.scrollBarShown then
+        frame.obj.scrollframe:SetPoint("BOTTOMRIGHT", -5, 0)
+      end
       frame.obj:DoLayout()
     end
   )
 
-  dynamicTextCodesFrame.scrollContainer = textReplacementsScrollContainer
-  dynamicTextCodesFrame.scrollList = textReplacementsScroll
-  dynamicTextCodesFrame.label = textReplacementsLabel
+  dynamicTextCodesFrame.scrollContainer = dynamicTextCodesScrollContainer
+  dynamicTextCodesFrame.scrollList = dynamicTextCodesScrollList
+  dynamicTextCodesFrame.label = dynamicTextCodesLabel
   dynamicTextCodesFrame:Hide()
 
   function OptionsPrivate.ToggleTextReplacements(data, show, widget)

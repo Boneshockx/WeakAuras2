@@ -1744,62 +1744,79 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
   local _, props = OptionsPrivate.Private.GetAdditionalProperties(data)
   local sortedProps = {}
   for triggerNum, triggerProps in pairs(props) do
+    table.insert(sortedProps, {type = "header", triggerNum = triggerNum, name = string.format("%s %d", L["Trigger"], triggerNum)})
     for name, desc in pairs(triggerProps) do
       table.insert(sortedProps, {triggerNum = triggerNum, name = name, desc = desc})
     end
   end
   table.sort(sortedProps, function(a, b)
     if a.triggerNum == b.triggerNum then
-      return a.name < b.name
+      if (a.type == "header" and b.type ~= "header") then
+        return true
+      elseif (a.type ~= "header" and b.type == "header") then
+        return false
+      else
+        return a.name < b.name
+      end
     else
       return a.triggerNum < b.triggerNum
     end
   end)
-  local finalProps = {}
+  local finalProps = {
+    {type = "header", name = "Global Properties"}
+  }
   tAppendAll(finalProps, BaseDynamicTextCodes)
   tAppendAll(finalProps, sortedProps)
 
   -- Create a modified WeakAurasSnippetButton for each property and add it to ScrollList
   for _, prop in ipairs(finalProps) do
-    local button = AceGUI:Create("WeakAurasSnippetButton")
-    local propCode = prop.triggerNum > 0 and string.format("%s.%s", prop.triggerNum, prop.name) or prop.name
-    button:SetTitle(string.format("|cFFFFCC00%%%s|r", propCode))
-    button:SetRelativeWidth(1)
-    button.title:SetFontObject(GameFontNormal)
-    button.frame:SetHeight(28)
+    if prop.type and prop.type == "header" then
+      local heading = AceGUI:Create("Heading")
+      heading:SetText(prop.name)
+      heading:SetRelativeWidth(1)
+      frame.scrollList:AddChild(heading)
+    else
+      local button = AceGUI:Create("WeakAurasSnippetButton")
+      local propIndex = prop.triggerNum > 0 and string.format("%s", prop.triggerNum) or ""
+      local propPrefix = prop.triggerNum > 0 and string.format("%%%s.", propIndex) or "%"
+      button:SetTitle(string.format("|cFFFFCC00%s|r%s", propPrefix, prop.name))
+      button:SetRelativeWidth(1)
+      button.title:SetFontObject(GameFontNormal)
+      button.frame:SetHeight(28)
 
-    -- Modify highlight textures hover and push and remove normal texture
-    button.ntex:SetTexture(nil)
-    button.htex:SetTexture(nil)
-    button.ptex:SetTexture(nil)
-    button.htex:SetAtlas("Options_List_Hover")
-    button.htex:SetVertexColor(1, 1, 1, 1)
-    button.ptex:SetAtlas("Options_List_Active")
+      -- Modify highlight textures hover and push and remove normal texture
+      button.ntex:SetTexture(nil)
+      button.htex:SetTexture(nil)
+      button.ptex:SetTexture(nil)
+      button.htex:SetAtlas("Options_List_Hover")
+      button.htex:SetVertexColor(1, 1, 1, 1)
+      button.ptex:SetAtlas("Options_List_Active")
 
-    -- Set Tooltip
-    button.frame:SetScript("OnEnter", function(frame)
-      local tooltip = GameTooltip
-      tooltip:SetWidth(300)
-      tooltip:SetOwner(frame, "ANCHOR_RIGHT")
-      tooltip:ClearLines()
-      tooltip:AddLine(string.format("%%%s", propCode))
-      tooltip:AddLine(prop.desc, 1, 1, 1, true)
-      tooltip:AddLine("\n")
-      tooltip:AddLine(prop.triggerNum > 0 and L["Dynamic text label"] or L["Dynamic text label global"], 0.8, 0.8, 0.8, true)
-      tooltip:Show()
-      frame.obj:Fire("OnEnter")
-    end)
+      -- Set Tooltip
+      button.frame:SetScript("OnEnter", function(frame)
+        local tooltip = GameTooltip
+        tooltip:SetWidth(300)
+        tooltip:SetOwner(frame, "ANCHOR_RIGHT")
+        tooltip:ClearLines()
+        tooltip:AddLine(string.format("%s%s", propPrefix, prop.name))
+        tooltip:AddLine(prop.desc, 1, 1, 1, true)
+        tooltip:AddLine("\n")
+        tooltip:AddLine(prop.triggerNum > 0 and L["Dynamic text label"] or L["Dynamic text label global"], 0.8, 0.8, 0.8, true)
+        tooltip:Show()
+        frame.obj:Fire("OnEnter")
+      end)
 
-    -- Insert dynamic text property on click
-    button.frame:SetScript("OnClick", function()
-      local insertProp = prop.name == "%" and "%%" or string.format("%%{%s}", propCode)
-      OptionsPrivate.currentDynamicTextInput.editbox:Insert(insertProp)
-      OptionsPrivate.skipDynamicTextUpdate = true
-      OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
-      OptionsPrivate.skipDynamicTextUpdate = false
-    end)
+      -- Insert dynamic text property on click
+      button.frame:SetScript("OnClick", function()
+        local insertProp = prop.name == "%" and "%%" or string.format("%%{%d.%s}", propIndex, prop.name)
+        OptionsPrivate.currentDynamicTextInput.editbox:Insert(insertProp)
+        OptionsPrivate.skipDynamicTextUpdate = true
+        OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
+        OptionsPrivate.skipDynamicTextUpdate = false
+      end)
 
-    frame.scrollList:AddChild(button)
+      frame.scrollList:AddChild(button)
+    end
   end
 end
 
