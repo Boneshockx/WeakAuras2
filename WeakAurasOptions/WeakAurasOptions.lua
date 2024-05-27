@@ -1727,16 +1727,15 @@ function OptionsPrivate.OpenTriggerTemplate(data, targetId)
 end
 
 OptionsPrivate.currentDynamicTextInput = false;
-OptionsPrivate.skipDynamicTextUpdate = false;
 
-local BaseTextReplacements = {
-  {name = "p", desc = L["Progress - The remaining time of a timer, or a non-timer value"]},
-  {name = "t", desc = L["Total - The maximum duration of a timer, or a maximum non-timer value"]},
-  {name = "n", desc = L["Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"]},
-  {name = "i", desc = L["Icon - The icon associated with the display"]},
-  {name = "s", desc = L["Stacks - The number of stacks of an aura (usually)"]},
-  {name = "c", desc = L["Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."]},
-  {name = "%", desc = L["% - To show a percent sign"]},
+local BaseDynamicTextCodes = {
+  {triggerNum = 0, name = "p", desc = L["Progress - The remaining time of a timer, or a non-timer value"]},
+  {triggerNum = 0, name = "t", desc = L["Total - The maximum duration of a timer, or a maximum non-timer value"]},
+  {triggerNum = 0, name = "n", desc = L["Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"]},
+  {triggerNum = 0, name = "i", desc = L["Icon - The icon associated with the display"]},
+  {triggerNum = 0, name = "s", desc = L["Stacks - The number of stacks of an aura (usually)"]},
+  {triggerNum = 0, name = "c", desc = L["Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."]},
+  {triggerNum = 0, name = "%", desc = L["% - To show a percent sign"]},
 }
 
 function OptionsPrivate.UpdateTextReplacements(frame, data)
@@ -1757,33 +1756,27 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
     end
   end)
   local finalProps = {}
-  -- Add BaseTextReplacements first
-  for _, prop in ipairs(BaseTextReplacements) do
-    table.insert(finalProps, {triggerNum = 0, name = prop.name, desc = prop.desc})
-  end
+  tAppendAll(finalProps, BaseDynamicTextCodes)
   tAppendAll(finalProps, sortedProps)
 
-
-  -- Create a container with label for each property and add it to the scrollList
+  -- Create a modified WeakAurasSnippetButton for each property and add it to ScrollList
   for _, prop in ipairs(finalProps) do
     local button = AceGUI:Create("WeakAurasSnippetButton")
     local propCode = prop.triggerNum > 0 and string.format("%s.%s", prop.triggerNum, prop.name) or prop.name
-    local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
     button:SetTitle(string.format("|cFFFFCC00%%%s|r", propCode))
     button:SetRelativeWidth(1)
-    button.title:SetFontObject(GameFontNormalSmall2)
-    button.title:ClearAllPoints()
-    button.title:SetPoint("LEFT", button.frame, "LEFT", 5, 0)
-    button.title:SetPoint("RIGHT", button.frame, "RIGHT", 0, 0)
-    button.title:SetWidth(button.frame:GetWidth())
+    button.title:SetFontObject(GameFontNormal)
+    button.frame:SetHeight(28)
 
+    -- Modify highlight textures hover and push and remove normal texture
     button.ntex:SetTexture(nil)
     button.htex:SetTexture(nil)
+    button.ptex:SetTexture(nil)
     button.htex:SetAtlas("Options_List_Hover")
     button.htex:SetVertexColor(1, 1, 1, 1)
-    button.ptex:SetTexture(nil)
     button.ptex:SetAtlas("Options_List_Active")
 
+    -- Set Tooltip
     button.frame:SetScript("OnEnter", function(frame)
       local tooltip = GameTooltip
       tooltip:SetWidth(300)
@@ -1797,6 +1790,7 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
       frame.obj:Fire("OnEnter")
     end)
 
+    -- Insert dynamic text property on click
     button.frame:SetScript("OnClick", function()
       local insertProp = prop.name == "%" and "%%" or string.format("%%{%s}", propCode)
       OptionsPrivate.currentDynamicTextInput.editbox:Insert(insertProp)
@@ -1804,11 +1798,6 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
       OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
       OptionsPrivate.skipDynamicTextUpdate = false
     end)
-
-    local numLines = button.title:GetNumLines()
-    local lineHeight = select(2, button.title:GetFont())
-    button.title:SetHeight(numLines * lineHeight)
-    button.frame:SetHeight(math.max((numLines * lineHeight) + 10, 25))
 
     frame.scrollList:AddChild(button)
   end
