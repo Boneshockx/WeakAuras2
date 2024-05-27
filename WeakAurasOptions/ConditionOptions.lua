@@ -950,9 +950,8 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
 
     args["condition" .. i .. "value" .. j .. "message dest"] = {
       type = "input",
-      width = WeakAuras.normalWidth,
+      width = WeakAuras.normalWidth - 0.15,
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "message_dest", L["Send To"], L["Send To"]),
-      desc = descMessage,
       order = order,
       get = function()
         return type(conditions[i].changes[j].value) == "table" and conditions[i].changes[j].value.message_dest;
@@ -960,7 +959,37 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       set = setValueComplex("message_dest"),
       hidden = function()
         return not anyMessageType("WHISPER");
-      end
+      end,
+      control = "WeakAurasInput",
+      callbacks = {
+        OnEditFocusGained = function(self)
+          local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"]
+          OptionsPrivate.ToggleTextReplacements(data, true, widget)
+        end,
+        OnShow = function(self)
+          dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"] = self
+        end,
+      }
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "message dest_text_replacements_button"] = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = order,
+      hidden = function()
+        return not anyMessageType("WHISPER");
+      end,
+      func = function()
+        local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"]
+        OptionsPrivate.ToggleTextReplacements(data, nil, widget)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
     }
     order = order + 1;
 
@@ -1011,11 +1040,11 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       control = "WeakAurasInput",
       callbacks = {
         OnEditFocusGained = function(self)
-          local widget = dynamicTextInputs[i]
+          local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message"]
           OptionsPrivate.ToggleTextReplacements(data, true, widget)
         end,
         OnShow = function(self)
-          dynamicTextInputs[i] = self
+          dynamicTextInputs["condition" .. i .. "value" .. j .. "message"] = self
         end,
       }
     }
@@ -1028,7 +1057,7 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
       order = order,
       func = function()
-        local widget = dynamicTextInputs[i]
+        local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message"]
         OptionsPrivate.ToggleTextReplacements(data, nil, widget)
       end,
       imageWidth = 24,
