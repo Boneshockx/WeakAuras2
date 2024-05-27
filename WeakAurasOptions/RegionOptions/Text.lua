@@ -14,6 +14,8 @@ local hiddenFontExtra = function()
   return OptionsPrivate.IsCollapsed("text", "text", "fontflags", true)
 end
 
+local dynamicTextInputs = {}
+
 local function createOptions(id, data)
   local function hideCustomTextOption()
     if OptionsPrivate.Private.ContainsCustomPlaceHolder(data.displayText) then
@@ -44,10 +46,7 @@ local function createOptions(id, data)
     __order = 1,
     displayText = {
       type = "input",
-      width = WeakAuras.doubleWidth,
-      desc = function()
-        return L["Dynamic text tooltip"] .. OptionsPrivate.Private.GetAdditionalProperties(data)
-      end,
+      width = WeakAuras.doubleWidth - 0.15,
       multiline = true,
       name = L["Display Text"],
       order = 10,
@@ -61,6 +60,31 @@ local function createOptions(id, data)
         WeakAuras.UpdateThumbnail(data);
         OptionsPrivate.ResetMoverSizer();
       end,
+      control = "WeakAurasMultiLineEditBox",
+      callbacks = {
+        OnEditFocusGained = function(self)
+          local widget = dynamicTextInputs["displayText"]
+          OptionsPrivate.ToggleTextReplacements(data, true, widget)
+        end,
+        OnShow = function(self)
+          dynamicTextInputs["displayText"] = self
+        end,
+      }
+    },
+    text_replacements_button = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = 10.1,
+      func = function()
+        local widget = dynamicTextInputs["displayText"]
+        OptionsPrivate.ToggleTextReplacements(data, nil, widget)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\template",
     },
     customTextUpdate = {
       type = "select",
