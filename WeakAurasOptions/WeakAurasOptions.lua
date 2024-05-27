@@ -1740,94 +1740,77 @@ local BaseTextReplacements = {
 }
 
 function OptionsPrivate.UpdateTextReplacements(frame, data)
+  frame.scrollList:ReleaseChildren()
+
   local _, props = OptionsPrivate.Private.GetAdditionalProperties(data)
-  local dropdownItems = {}
-  for i,v in ipairs(props) do
-    if next(props[i]) then
-      dropdownItems[i] = "Trigger " .. i
+  local sortedProps = {}
+  for triggerNum, triggerProps in pairs(props) do
+    for name, desc in pairs(triggerProps) do
+      table.insert(sortedProps, {triggerNum = triggerNum, name = name, desc = desc})
     end
   end
-  dropdownItems[0] = "Global"
-  frame.dropdown:SetList(dropdownItems)
-  frame.dropdown:SetValue(0)
-
-  local function FillScrollList(key)
-    key = key or 0
-    frame.scrollList:ReleaseChildren()
-
-    local sortedProps = {}
-    if key > 0 then
-      frame.label:SetText(L["Dynamic text label"])
-      for name, desc in pairs(props[key]) do
-          table.insert(sortedProps, {name = name, desc = desc})
-      end
-      table.sort(sortedProps, function(a, b) return a.name < b.name end)
+  table.sort(sortedProps, function(a, b)
+    if a.triggerNum == b.triggerNum then
+      return a.name < b.name
     else
-      frame.label:SetText(L["Dynamic text label global"])
-      sortedProps = BaseTextReplacements
+      return a.triggerNum < b.triggerNum
     end
-
-    -- Create a container with label for each property and add it to the scrollList
-    for _, prop in ipairs(sortedProps) do
-      -- local container = AceGUI:Create("WeakAurasInteractiveLabel")
-      -- local propCode = key > 0 and string.format("%%%s.%s", key, prop.name) or string.format("%%%s", prop.name)
-      -- local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
-      -- container:SetText(text)
-      -- container:SetScript("OnClick", function()
-      --   OptionsPrivate.CurrentInput.editbox:Insert(propCode)
-      --   OptionsPrivate.CurrentInput.editbox:SetFocus()
-      -- end)
-
-      local button = AceGUI:Create("WeakAurasSnippetButton")
-      local propCode = key > 0 and string.format("%%%s.%s", key, prop.name) or string.format("%%%s", prop.name)
-      local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
-      button:SetTitle(string.format("|cFFFFCC00%s|r", propCode))
-      button:SetWidth(frame.scrollContainer.frame:GetWidth())
-      button.title:SetFontObject(GameFontNormalSmall2)
-      button.title:ClearAllPoints()
-      button.title:SetPoint("LEFT", button.frame, "LEFT", 5, 0)
-      button.title:SetPoint("RIGHT", button.frame, "RIGHT", -5, 0)
-      button.title:SetWidth(button.frame:GetWidth() - 10)
-
-      button.ntex:SetTexture(nil)
-      button.htex:SetTexture(nil)
-      button.htex:SetAtlas("Options_List_Hover")
-      button.htex:SetVertexColor(1, 1, 1, 1)
-      button.ptex:SetTexture(nil)
-      button.ptex:SetAtlas("Options_List_Active")
-
-      button.frame:SetScript("OnEnter", function(frame)
-        local tooltip = GameTooltip
-        tooltip:SetWidth(300)
-        tooltip:SetOwner(frame, "ANCHOR_RIGHT")
-        tooltip:ClearLines()
-        tooltip:AddLine(propCode)
-        tooltip:AddLine(prop.desc, 1, 1, 1, true)
-        tooltip:Show()
-        frame.obj:Fire("OnEnter")
-      end)
-
-      button.frame:SetScript("OnClick", function()
-        OptionsPrivate.currentDynamicTextInput.editbox:Insert(propCode)
-        OptionsPrivate.skipDynamicTextUpdate = true
-        OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
-        OptionsPrivate.skipDynamicTextUpdate = false
-      end)
-
-      local numLines = button.title:GetNumLines()
-      local lineHeight = select(2, button.title:GetFont())
-      button.title:SetHeight(numLines * lineHeight)
-      button.frame:SetHeight(math.max((numLines * lineHeight) + 10, 30))
-
-      frame.scrollList:AddChild(button)
-    end
+  end)
+  local finalProps = {}
+  -- Add BaseTextReplacements first
+  for _, prop in ipairs(BaseTextReplacements) do
+    table.insert(finalProps, {triggerNum = 0, name = prop.name, desc = prop.desc})
   end
-  FillScrollList()
+  tAppendAll(finalProps, sortedProps)
 
-  frame.dropdown:SetCallback("OnValueChanged", function(widget, event, key)
-    FillScrollList(key)
+
+  -- Create a container with label for each property and add it to the scrollList
+  for _, prop in ipairs(finalProps) do
+    local button = AceGUI:Create("WeakAurasSnippetButton")
+    local propCode = prop.triggerNum > 0 and string.format("%%%s.%s", prop.triggerNum, prop.name) or string.format("%%%s", prop.name)
+    local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
+    button:SetTitle(string.format("|cFFFFCC00%s|r", propCode))
+    button:SetRelativeWidth(1)
+    button.title:SetFontObject(GameFontNormalSmall2)
+    button.title:ClearAllPoints()
+    button.title:SetPoint("LEFT", button.frame, "LEFT", 5, 0)
+    button.title:SetPoint("RIGHT", button.frame, "RIGHT", 0, 0)
+    button.title:SetWidth(button.frame:GetWidth())
+
+    button.ntex:SetTexture(nil)
+    button.htex:SetTexture(nil)
+    button.htex:SetAtlas("Options_List_Hover")
+    button.htex:SetVertexColor(1, 1, 1, 1)
+    button.ptex:SetTexture(nil)
+    button.ptex:SetAtlas("Options_List_Active")
+
+    button.frame:SetScript("OnEnter", function(frame)
+      local tooltip = GameTooltip
+      tooltip:SetWidth(300)
+      tooltip:SetOwner(frame, "ANCHOR_RIGHT")
+      tooltip:ClearLines()
+      tooltip:AddLine(propCode)
+      tooltip:AddLine(prop.desc, 1, 1, 1, true)
+      tooltip:AddLine("\n")
+      tooltip:AddLine(prop.triggerNum > 0 and L["Dynamic text label"] or L["Dynamic text label global"], 0.8, 0.8, 0.8, true)
+      tooltip:Show()
+      frame.obj:Fire("OnEnter")
+    end)
+
+    button.frame:SetScript("OnClick", function()
+      OptionsPrivate.currentDynamicTextInput.editbox:Insert(propCode)
+      OptionsPrivate.skipDynamicTextUpdate = true
+      OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
+      OptionsPrivate.skipDynamicTextUpdate = false
+    end)
+
+    local numLines = button.title:GetNumLines()
+    local lineHeight = select(2, button.title:GetFont())
+    button.title:SetHeight(numLines * lineHeight)
+    button.frame:SetHeight(math.max((numLines * lineHeight) + 10, 25))
+
+    frame.scrollList:AddChild(button)
   end
-  )
 end
 
 function OptionsPrivate.ResetMoverSizer()

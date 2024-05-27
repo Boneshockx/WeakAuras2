@@ -869,16 +869,15 @@ function OptionsPrivate.CreateFrame()
   textReplacementsFrame:SetPoint("BOTTOMLEFT", sidegroup.frame, "BOTTOMRIGHT", 20, 0)
   textReplacementsFrame:SetWidth(250)
   frame.textReplacementsFrame = textReplacementsFrame
-
-  local textReplacementsDropdown = AceGUI:Create("Dropdown")
-  textReplacementsDropdown:SetLabel("Select Trigger")
-  textReplacementsDropdown:SetPoint("TOP", textReplacementsFrame, "TOP", 0, -35)
-  textReplacementsDropdown.frame:SetParent(textReplacementsFrame)
+  textReplacementsFrame.TitleText:SetText("Dynamic Text Replacements")
+  textReplacementsFrame.TitleText:SetJustifyH("CENTER")
+  textReplacementsFrame.TitleText:SetPoint("LEFT", textReplacementsFrame, "TOPLEFT")
+  textReplacementsFrame.TitleText:SetPoint("RIGHT", textReplacementsFrame, "TOPRIGHT", -10, 0)
 
   local textReplacementsLabel = AceGUI:Create("Label")
-  textReplacementsLabel:SetText(L["Dynamic text label global"])
+  textReplacementsLabel:SetText(L["Insert text replacement codes to make text dynamic."])
   textReplacementsLabel:SetFontObject(GameFontNormal)
-  textReplacementsLabel:SetPoint("TOP", textReplacementsDropdown.frame, "BOTTOM", 0, -15)
+  textReplacementsLabel:SetPoint("TOP", textReplacementsFrame, "TOP", 0, -35)
   textReplacementsLabel:SetFontObject(GameFontNormalSmall2)
   textReplacementsLabel.frame:SetParent(textReplacementsFrame)
   textReplacementsLabel.frame:Show()
@@ -904,7 +903,6 @@ function OptionsPrivate.CreateFrame()
 
   textReplacementsFrame.scrollContainer = textReplacementsScrollContainer
   textReplacementsFrame.scrollList = textReplacementsScroll
-  textReplacementsFrame.dropdown = textReplacementsDropdown
   textReplacementsFrame.label = textReplacementsLabel
   textReplacementsFrame:Hide()
 
