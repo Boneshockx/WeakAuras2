@@ -1767,9 +1767,9 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
   -- Create a container with label for each property and add it to the scrollList
   for _, prop in ipairs(finalProps) do
     local button = AceGUI:Create("WeakAurasSnippetButton")
-    local propCode = prop.triggerNum > 0 and string.format("%%%s.%s", prop.triggerNum, prop.name) or string.format("%%%s", prop.name)
+    local propCode = prop.triggerNum > 0 and string.format("%s.%s", prop.triggerNum, prop.name) or prop.name
     local text = string.format("|cFFFFCC00%s|r - %s", propCode, prop.desc)
-    button:SetTitle(string.format("|cFFFFCC00%s|r", propCode))
+    button:SetTitle(string.format("|cFFFFCC00%%%s|r", propCode))
     button:SetRelativeWidth(1)
     button.title:SetFontObject(GameFontNormalSmall2)
     button.title:ClearAllPoints()
@@ -1789,7 +1789,7 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
       tooltip:SetWidth(300)
       tooltip:SetOwner(frame, "ANCHOR_RIGHT")
       tooltip:ClearLines()
-      tooltip:AddLine(propCode)
+      tooltip:AddLine(string.format("%%%s", propCode))
       tooltip:AddLine(prop.desc, 1, 1, 1, true)
       tooltip:AddLine("\n")
       tooltip:AddLine(prop.triggerNum > 0 and L["Dynamic text label"] or L["Dynamic text label global"], 0.8, 0.8, 0.8, true)
@@ -1798,7 +1798,7 @@ function OptionsPrivate.UpdateTextReplacements(frame, data)
     end)
 
     button.frame:SetScript("OnClick", function()
-      OptionsPrivate.currentDynamicTextInput.editbox:Insert(propCode)
+      OptionsPrivate.currentDynamicTextInput.editbox:Insert(string.format("%%{%s}", propCode))
       OptionsPrivate.skipDynamicTextUpdate = true
       OptionsPrivate.currentDynamicTextInput.editbox:SetFocus()
       OptionsPrivate.skipDynamicTextUpdate = false
