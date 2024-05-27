@@ -891,29 +891,28 @@ function OptionsPrivate.CreateFrame()
   dynamicTextCodesLabel.frame:SetParent(dynamicTextCodesFrame)
   dynamicTextCodesLabel.frame:Show()
 
-  local dynamicTextCodesScrollContainer = AceGUI:Create("SimpleGroup")
-  dynamicTextCodesScrollContainer:SetFullWidth(true)
-  dynamicTextCodesScrollContainer:SetFullHeight(true)
-  dynamicTextCodesScrollContainer:SetLayout("Fill")
-  dynamicTextCodesScrollContainer:SetPoint("TOPLEFT", dynamicTextCodesLabel.frame, "BOTTOMLEFT", 0, -15)
-  dynamicTextCodesScrollContainer:SetPoint("BOTTOMRIGHT", dynamicTextCodesFrame, "BOTTOMRIGHT", -25, 20)
-  dynamicTextCodesScrollContainer.frame:SetParent(dynamicTextCodesFrame)
-
   local dynamicTextCodesScrollList = AceGUI:Create("ScrollFrame")
   dynamicTextCodesScrollList:SetLayout("List")
-  dynamicTextCodesScrollContainer:AddChild(dynamicTextCodesScrollList)
-  dynamicTextCodesScrollList:FixScroll(true)
+  dynamicTextCodesScrollList:SetPoint("TOPLEFT", dynamicTextCodesLabel.frame, "BOTTOMLEFT", 0, -15)
+  dynamicTextCodesScrollList:SetPoint("BOTTOMRIGHT", dynamicTextCodesFrame, "BOTTOMRIGHT", -25, 20)
+  dynamicTextCodesScrollList.frame:SetParent(dynamicTextCodesFrame)
+  dynamicTextCodesScrollList:FixScroll()
   dynamicTextCodesScrollList.scrollframe:SetScript(
     "OnScrollRangeChanged",
     function(frame)
-      if frame.obj.scrollBarShown then
-        frame.obj.scrollframe:SetPoint("BOTTOMRIGHT", -5, 0)
-      end
       frame.obj:DoLayout()
     end
   )
+  dynamicTextCodesScrollList.scrollframe:SetScript(
+    "OnSizeChanged",
+    function(frame)
+      if frame.obj.scrollBarShown then
+        frame.obj.content.width = frame.obj.content.original_width - 5
+        frame.obj.scrollframe:SetPoint("BOTTOMRIGHT", -5, 0)
+      end
+    end
+  )
 
-  dynamicTextCodesFrame.scrollContainer = dynamicTextCodesScrollContainer
   dynamicTextCodesFrame.scrollList = dynamicTextCodesScrollList
   dynamicTextCodesFrame.label = dynamicTextCodesLabel
   dynamicTextCodesFrame:Hide()
