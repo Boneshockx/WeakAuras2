@@ -4192,7 +4192,7 @@ function GenericTrigger.GetAdditionalProperties(data, triggernum)
           if (type(varData) == "table") then
             if varData.display then
               ret = ret .. "|cFFFFCC00%".. triggernum .. "." .. var .. "|r - " .. varData.display .. "\n"
-              additionalProperties.var = varData.display
+              additionalProperties[var] = varData.display
             end
           end
         end
