@@ -170,8 +170,9 @@ Private.frames = {}
 --- @field subeventSuffix string?
 --- @field type triggerTypes
 --- @field unit string?
---- @field use_showOn boolean|nil
 --- @field use_alwaystrue boolean|nil
+--- @field use_ignoreoverride boolean|nil
+--- @field use_showOn boolean|nil
 
 ---@class prototypeDataArgs
 ---@field name string
@@ -191,11 +192,12 @@ Private.frames = {}
 ---@field timedrequired boolean?
 ---@field GetNameAndIcon (fun(trigger: triggerData): string?, string?)|nil
 ---@field iconFunc (fun(trigger: triggerData): string?)|nil
+---@field loadFunc (fun(trigger: triggerData): nil)|nil
 ---@field nameFunc (fun(trigger: triggerData): string?)|nil
 ---@field events (fun(trigger: triggerData): table)|nil
 ---@field internal_events (fun(trigger: triggerData): table)|nil
 ---@field name string
----@field statesParamater "unit"|"one"|"all"|nil
+---@field statesParameter "unit"|"one"|"all"|nil
 ---@field progressType "timed"|"static"|"none"
 
 --- @class triggerUntriggerData
@@ -423,11 +425,6 @@ end
 WeakAuras.IsClassic = WeakAuras.IsClassicEra
 
 ---@return boolean result
-function WeakAuras.IsWrathClassic()
-  return flavor == 3
-end
-
----@return boolean result
 function WeakAuras.IsCataClassic()
   return flavor == 4
 end
@@ -438,18 +435,8 @@ function WeakAuras.IsRetail()
 end
 
 ---@return boolean result
-function WeakAuras.IsClassicEraOrWrath()
-  return WeakAuras.IsClassicEra() or WeakAuras.IsWrathClassic()
-end
-
----@return boolean result
-function WeakAuras.IsWrathOrCataOrRetail()
-  return WeakAuras.IsRetail() or WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
-end
-
----@return boolean result
-function WeakAuras.IsWrathOrCata()
-  return WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
+function WeakAuras.IsClassicOrCata()
+  return WeakAuras.IsClassicEra() or WeakAuras.IsCataClassic()
 end
 
 ---@return boolean result
@@ -458,8 +445,8 @@ function WeakAuras.IsCataOrRetail()
 end
 
 ---@return boolean result
-function WeakAuras.IsClassicEraOrWrathOrCata()
-  return WeakAuras.IsClassicEra() or WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
+function WeakAuras.IsTWW()
+  return WeakAuras.BuildInfo >= 110000
 end
 
 ---@param ... string
@@ -472,6 +459,7 @@ C_AddOns.EnableAddOn("WeakAurasCompanion")
 C_AddOns.EnableAddOn("WeakAurasArchive")
 
 local libsAreOk = true
+local noIncompatibleAddon = true
 do
   local StandAloneLibs = {
     "Archivist",
@@ -530,6 +518,12 @@ do
         GameTooltip:Hide()
       end,
     })
+    if C_AddOns.IsAddOnLoaded("!!WWAddOnsFix") then
+      noIncompatibleAddon = false
+      C_Timer.After(1, function()
+        WeakAuras.prettyPrint("Incompatible addon detected: please disable '!!WWAddOnsFix'")
+      end)
+    end
   end
   for _, lib in ipairs(StandAloneLibs) do
     if not lib then
@@ -550,10 +544,10 @@ do
 end
 
 function WeakAuras.IsLibsOK()
-  return libsAreOk
+  return libsAreOk and noIncompatibleAddon
 end
 
-if not WeakAuras.IsLibsOK() then
+if not libsAreOk then
   C_Timer.After(1, function()
     WeakAuras.prettyPrint("WeakAuras is missing necessary libraries. Please reinstall a proper package.")
   end)

@@ -26,7 +26,11 @@ embeds.xml
 # TaintLess
 Libs\TaintLess\TaintLess.xml
 
+# Client flavor specific libs
+Libs\LibSpecialization\LibSpecialization.lua
+
 Init.lua
+Compatibility.lua
 locales.xml
 ArchiveTypes\Repository.lua
 DefaultOptions.lua
@@ -49,6 +53,7 @@ Conditions.lua
 AnchorToWeakAuras.lua
 
 # Trigger systems
+LibSpecializationWrapper.lua
 BuffTrigger2.lua
 GenericTrigger.lua
 BossMods.lua
