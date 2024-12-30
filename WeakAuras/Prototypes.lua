@@ -11294,36 +11294,9 @@ Private.event_prototypes = {
     args = {
       {
         name = "money",
-        init = "money",
-        type = "number",
+        type = "money",
         display = L["Money"],
         store = true,
-        hidden = true,
-        test = "true",
-      },
-      {
-        name = "gold",
-        init = "gold",
-        type = "number",
-        display = Private.coin_icons.gold .. L["Gold"],
-        store = true,
-        conditionType = "number",
-      },
-      {
-        name = "silver",
-        init = "silver",
-        type = "number",
-        display = Private.coin_icons.silver .. L["Silver"],
-        store = true,
-        conditionType = "number",
-      },
-      {
-        name = "copper",
-        init = "copper",
-        type = "number",
-        display = Private.coin_icons.copper .. L["Copper"],
-        store = true,
-        conditionType = "number",
       },
       {
         name = "icon",

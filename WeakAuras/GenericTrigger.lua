@@ -266,7 +266,7 @@ local function singleTest(arg, trigger, name, value, operator, use_exact)
     return TestForLongString(trigger, arg);
   elseif (arg.type == "string" or arg.type == "select") then
     return "(".. name .." and "..name.."==" ..(number or ("\""..(tostring(value) or "").."\""))..")";
-  elseif (arg.type == "number") then
+  elseif (arg.type == "number" or arg.type == "money") then
     return "(".. name .." and "..name..(operator or "==")..(number or 0) ..")";
   else
     -- Should be unused
@@ -291,6 +291,7 @@ function ConstructTest(trigger, arg, preambleGroups)
   if arg.hidden
     or arg.type == "tristate"
     or arg.type == "toggle"
+    or arg.type == "money"
     or (arg.type == "multiselect" and trigger["use_"..name] ~= nil)
     or ((trigger["use_"..name] or arg.required) and trigger[name])
   then
@@ -325,6 +326,13 @@ function ConstructTest(trigger, arg, preambleGroups)
           test = "(" .. test .. ")"
         end
       end
+    elseif arg.type == "money" then
+      local g = tonumber(trigger[name.."_gold"]) or 0
+      local s = tonumber(trigger[name.."_silver"]) or 0
+      local c = tonumber(trigger[name.."_copper"]) or 0
+      local value = g .. string.format("%02d", s) .. string.format("%02d", c)
+      local operator = name and trigger[name.."_operator"]
+      test = singleTest(arg, trigger, name, value, operator)
     else
       local value = trigger[name]
       local operator = name and trigger[name.."_operator"]

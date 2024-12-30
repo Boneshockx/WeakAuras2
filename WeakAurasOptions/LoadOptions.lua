@@ -1010,6 +1010,76 @@ function OptionsPrivate.ConstructOptions(prototype, data, startorder, triggernum
             end
           };
           order = order + 1;
+        elseif(arg.type == "money") then
+          local disabled = not trigger["use_"..realname]
+          options[name..suffix .. "dummy"] = {
+            type = "description",
+            name = "",
+            width = WeakAuras.normalWidth,
+            order = order,
+            hidden = not disabled or hidden,
+            hiddenAllIfAnyHidden = true
+          }
+          order = order + 1
+
+          options[name.."_operator"..suffix] = {
+            type = "select",
+            width = WeakAuras.halfWidth,
+            name = L["Operator"],
+            order = order,
+            hidden = disabled or hidden,
+            values = arg.operator_types == "without_equal" and OptionsPrivate.Private.operator_types_without_equal
+                      or arg.operator_types == "only_equal" and OptionsPrivate.Private.equality_operator_types
+                      or OptionsPrivate.Private.operator_types,
+
+            get = function()
+              return getValue(trigger, "use_"..realname, realname.."_operator", multiEntry, entryNumber)
+            end,
+            set = function(info, v)
+              setValue(trigger, realname.."_operator", v, multiEntry, entryNumber)
+              WeakAuras.Add(data);
+              if (reloadOptions) then
+                WeakAuras.ClearAndUpdateOptions(data.id)
+              end
+              OptionsPrivate.Private.ScanForLoads({[data.id] = true});
+              WeakAuras.UpdateThumbnail(data);
+              OptionsPrivate.SortDisplayButtons(nil, true);
+            end
+          };
+          order = order + 1;
+
+          for _, coin in ipairs({"gold", "silver", "copper"}) do
+            options["spacer_"..name.."_"..coin] = {
+              type = "description",
+              width = WeakAuras.normalWidth,
+              name = "",
+              order = order,
+              hidden = hidden,
+            }
+            order = order + 1
+
+            options[name.."_"..coin] = {
+              type = "input",
+              width = WeakAuras.normalWidth,
+              validate = ValidateNumeric,
+              name = OptionsPrivate.Private.coin_icons[coin] .. L[coin:gsub("^%l", string.upper)],
+              order = order,
+              hidden = disabled or hidden,
+              desc = arg.desc,
+              get = function() return getValue(trigger, "use_"..realname, realname.."_"..coin, multiEntry, entryNumber) end,
+              set = function(info, v)
+                setValue(trigger, realname.."_"..coin, v, multiEntry, entryNumber)
+                WeakAuras.Add(data);
+                if (reloadOptions) then
+                  WeakAuras.ClearAndUpdateOptions(data.id)
+                end
+                OptionsPrivate.Private.ScanForLoads({[data.id] = true});
+                WeakAuras.UpdateThumbnail(data);
+                OptionsPrivate.SortDisplayButtons(nil, true);
+              end
+            };
+            order = order + 1;
+          end
         end
       end
     end
